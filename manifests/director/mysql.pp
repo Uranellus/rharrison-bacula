@@ -72,9 +72,8 @@ class bacula::director::mysql (
   }
 
   $make_db_tables_command = $::operatingsystem ? {
-    Debian  => '/usr/lib/bacula/make_bacula_tables',
-    Ubuntu  => '/usr/share/bacula-director/make_mysql_tables',
-    default => '/usr/libexec/bacula/make_mysql_tables',
+    /(Ubuntu|Debian)/ => '/usr/lib/bacula/make_bacula_tables',
+    default           => '/usr/libexec/bacula/make_mysql_tables',
   }
   $db_parameters = "--host=${db_host} --user=${db_user} --password=${db_password} --port=${db_port} --database=${db_database}"
 

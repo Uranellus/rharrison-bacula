@@ -10,6 +10,9 @@ Director {
   Query File = "/etc/bacula/scripts/query.sql"
   Working Directory = "/var/lib/bacula"
   PID Directory = "/var/run/bacula"
+  DirAddresses = {
+    ipv6 = { addr = ::; port = 9101; }
+  }
 <% if @plugin_dir -%>
   Plugin Directory = <%= @plugin_dir %>
 <% end -%>

@@ -34,6 +34,7 @@ class bacula::client (
   $director_password = '',
   $director_server   = undef,
   $plugin_dir        = undef,
+  $client_template   = 'bacula/bacula-fd.conf.erb',
   $tls_allowed_cn    = [],
   $tls_ca_cert       = undef,
   $tls_ca_cert_dir   = undef,
@@ -64,7 +65,7 @@ class bacula::client (
     owner   => 'root',
     group   => 'root',
     mode    => '0640',
-    content => template('bacula/bacula-fd.conf.erb'),
+    content => template($client_template),
     require => [
       Package['bacula-client'],
       $file_requires,

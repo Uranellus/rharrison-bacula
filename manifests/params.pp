@@ -34,44 +34,57 @@ class bacula::params {
     default           => 'bacula-console-bat',
   }
   $console_package             = 'bacula-console'
-  $director_mysql_package      = 'bacula-director-mysql'
-  $director_postgresql_package = $::operatingsystem ? {
-    /(Debian|Ubuntu)/ => 'bacula-director-pgsql',
-    default           => 'bacula-director-postgresql',
-  }
-  $director_server_default     = "bacula.${::domain}"
-  $director_service            = $::operatingsystem ? {
-    /(Debian|Ubuntu)/ => 'bacula-director',
-    default           => 'bacula-dir',
-  }
-  $director_sqlite_package     = 'bacula-director-sqlite'
   $lib    = $::architecture ? {
     x86_64  => 'lib64',
     default => 'lib',
   }
-  $libdir = $::operatingsystem ? {
-    /(Debian|Ubuntu)/ => '/usr/lib',
-    default           => "/usr/${lib}",
+  case $facts['os']['name'] {
+    'RedHat', 'CentOS': {
+      case $facts['os']['release']['major'] {
+        /6/: {
+          $director_mysql_package      = 'bacula-director-mysql'
+          $director_postgresql_package = 'bacula-director-postgresql'
+          $director_sqlite_package     = 'bacula-director-sqlite'
+          $storage_mysql_package       = 'bacula-storage-mysql'
+          $storage_postgresql_package  = 'bacula-storage-postgresql'
+          $storage_sqlite_package      = 'bacula-storage-sqlite'
+        }
+        /7/: {
+          $director_mysql_package      = 'bacula-libs-sql'
+          $director_postgresql_package = 'bacula-libs-sql'
+          $director_sqlite_package     = 'bacula-libs-sql'
+          #$storage_mysql_package       = 'bacula-libs-sql'
+          $storage_mysql_package       = 'telnet'
+          $storage_postgresql_package  = 'bacula-libs-sql'
+          $storage_sqlite_package      = 'bacula-libs-sql'
+        }
+        default: {
+          fail("osrelease ${facts['os']['release']['major']}")
+        }
+      }
+      $director_service            = 'bacula-dir'
+      $libdir = "/usr/${lib}"
+      $manage_logwatch = true
+    }
+    'Debian', 'Ubuntu': {
+      $director_mysql_package      = 'bacula-director-mysql'
+      $director_postgresql_package = 'bacula-director-pgsql'
+      $director_sqlite_package     = 'bacula-director-sqlite'
+      $director_service            = 'bacula-director'
+      $libdir = '/usr/lib'
+      $manage_logwatch = false
+      $storage_mysql_package       = 'bacula-sd-mysql'
+      $storage_postgresql_package  = 'bacula-sd-pgsql'
+      $storage_sqlite_package      = 'bacula-sd-sqlite'
+    }
+    default:            {
+      fail("osfamily")
+    }
   }
+  $director_server_default     = "bacula.${::domain}"
   $mail_command    = "/usr/sbin/bsmtp -h localhost -f bacula@${::fqdn} -s \\\"Bacula %t %e (for %c)\\\" %r"
   $mail_to_default = "root@${::fqdn}"
-  $manage_logwatch = $::operatingsystem ? {
-    /(Debian|Ubuntu)/ => false,
-    default           => true,
-  }
   $operator_command    = "/usr/sbin/bsmtp -h localhost -f bacula@${::fqdn} -s \\\"Bacula Intervention Required (for %c)\\\" %r"
   $plugin_dir           = "${libdir}/bacula"
-  $storage_mysql_package       = $::operatingsystem ? {
-    /(Debian|Ubuntu)/ => 'bacula-sd-mysql',
-    default           => 'bacula-storage-mysql',
-  }
-  $storage_postgresql_package  = $::operatingsystem ? {
-    /(Debian|Ubuntu)/ => 'bacula-sd-pgsql',
-    default           => 'bacula-storage-postgresql',
-  }
   $storage_server_default      = "bacula.${::domain}"
-  $storage_sqlite_package = $::operatingsystem ? {
-    /(Debian|Ubuntu)/ => 'bacula-sd-sqlite',
-    default           => 'bacula-storage-sqlite',
-  }
 }
