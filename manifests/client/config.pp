@@ -101,6 +101,7 @@
 # limitations under the License.
 #
 define bacula::client::config (
+  $address             = $::ipaddress6,
   $ensure              = file,
   $backup_enable       = 'yes',
   $client_schedule     = 'WeeklyCycle',
@@ -164,6 +165,15 @@ define bacula::client::config (
     }
     default : {
       $director_server_real = $director_server
+    }
+  }
+
+  case $address {
+    undef   : {
+      $address_real = $::ipaddress6
+    }
+    default : {
+      $address_real = $address
     }
   }
 
